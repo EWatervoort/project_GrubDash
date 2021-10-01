@@ -1,16 +1,16 @@
 const router = require("express").Router();
-const controller = require('./dishes.controller');
-const methodNotAllowed = require('../errors/methodNotAllowed');
+const controller = require("./dishes.controller");
+const methodNotAllowed = require("../errors/methodNotAllowed");
 
 router
-  .route('/:dishId')
+  .route("/:dishId")
   .get(controller.read)
   .put(controller.update)
-  .all(methodNotAllowed)
+  .all(methodNotAllowed);
 router
-  .route('/')
+  .route("/")
   .get(controller.list)
   .post(controller.create)
-  .all(methodNotAllowed)
+  .all(methodNotAllowed);
 
 module.exports = router;
