@@ -36,6 +36,7 @@ function dishId(req, res, next) {
 function bodyHasName(req, res, next) {
   const { data: { name } = {} } = req.body;
   if (name) {
+    res.locals.name = name;
     return next();
   }
   next({
@@ -47,6 +48,7 @@ function bodyHasName(req, res, next) {
 function bodyHasDescription(req, res, next) {
   const { data: { description } = {} } = req.body;
   if (description) {
+    res.locals.description = description;
     return next();
   }
   next({
@@ -58,6 +60,7 @@ function bodyHasDescription(req, res, next) {
 function bodyHasPrice(req, res, next) {
   const { data: { price } = {} } = req.body;
   if (price) {
+    res.locals.price = price;
     return next();
   }
   next({
@@ -67,7 +70,7 @@ function bodyHasPrice(req, res, next) {
 };
 
 function thePriceIsRight(req, res, next) {
-  const { data: { price } = {} } = req.body;
+  const price = res.locals.price;
   if (price <= 0 || !Number.isInteger(price)) {
     next({
       status: 400,
@@ -80,6 +83,7 @@ function thePriceIsRight(req, res, next) {
 function bodyHasImageUrl(req, res, next) {
   const { data: { image_url } = {} } = req.body;
   if (image_url) {
+    res.locals.image_url = image_url;
     return next();
   }
   next({
@@ -89,14 +93,13 @@ function bodyHasImageUrl(req, res, next) {
 };
 
 function create(req, res) {
-  const { data: { name, description, price, image_url } = {} } = req.body;
   const newId = new nextId()
   const newDish = {
     id: newId,
-    name,
-    description,
-    price,
-    image_url,
+    name: res.locals.name,
+    description: res.locals.description,
+    price: res.locals.price,
+    image_url: res.locals.image_url,
   };
   dishes.push(newDish);
   res.status(201).json({ data: newDish });
@@ -116,15 +119,14 @@ function update(req, res, next) {
   const originalDescription = dish.description;
   const originalPrice = dish.price;
   const originalImage_url = dish.image_url;
-  const { data: { name, description, price, image_url } = {} } = req.body;
-  if(originalName !== name) {
-    dish.name = name;
-  } if (originalDescription !== description) {
-    dish.description = description;
-  } if (originalPrice !== price) {
-    dish.price = price;
-  } if (originalImage_url !== image_url) {
-    dish.image_url = image_url;
+  if(originalName !== res.locals.name) {
+    dish.name = res.locals.name;
+  } if (originalDescription !== res.locals.description) {
+    dish.description = res.locals.description;
+  } if (originalPrice !== res.locals.price) {
+    dish.price = res.locals.price;
+  } if (originalImage_url !== res.locals.image_url) {
+    dish.image_url = res.locals.image_url;
   }
   res.json({ data: dish })
 }

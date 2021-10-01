@@ -28,6 +28,7 @@ function orderExists(req, res, next) {
 function bodyHasDeliverTo(req, res, next) {
   const { data: { deliverTo } = {} } = req.body;
   if (deliverTo) {
+    res.locals.deliverTo = deliverTo
     return next();
   }
   next({
@@ -39,6 +40,7 @@ function bodyHasDeliverTo(req, res, next) {
 function bodyHasMobileNumber(req, res, next) {
   const { data: { mobileNumber } = {} } = req.body;
   if (mobileNumber) {
+    res.locals.mobileNumber = mobileNumber
     return next();
   }
   next({
@@ -50,6 +52,7 @@ function bodyHasMobileNumber(req, res, next) {
 function bodyHasDishes(req, res, next) {
   const { data: { dishes } = {} } = req.body;
   if (dishes) {
+    res.locals.dishes = dishes
     return next();
   }
   next({
@@ -103,6 +106,7 @@ function orderId(req, res, next) {
 function bodyHasStatus(req, res, next) {
   const { data: { status } = {} } = req.body;
   if (status && !['delivered', 'invalid'].includes(status)) {
+    res.locals.status = status;
     return next();
   } else if (status === 'delivered') {
     return next({
@@ -138,14 +142,13 @@ function bodyHasPendingStatus(req, res, next) {
 // };
 
 function create(req, res, next) {
-  const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
   const newId = new nextId();
   const newOrder = {
     id: newId,
-    deliverTo,
-    mobileNumber,
-    status,
-    dishes,
+    deliverTo: res.locals.deliverTo,
+    mobileNumber: res.locals.mobileNumber,
+    status: res.locals.status,
+    dishes: res.locals.dishes,
   };
   orders.push(newOrder);
   res.status(201).json({ data: newOrder });
@@ -157,15 +160,14 @@ function read(req, res) {
 
 function update(req, res, next) {
   const order = res.locals.order;
-  const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
-  if (order.deliverTo !== deliverTo) {
-    order.deliverTo = deliverTo;
-  } if (order.mobileNumber !== mobileNumber) {
-    order.mobileNumber = mobileNumber;
-  }  if (order.status !== status) {
-    order.status = status;
-  }  if (order.dishes !== dishes) {
-    order.dishes = dishes;
+  if (order.deliverTo !== res.locals.deliverTo) {
+    order.deliverTo = res.locals.deliverTo;
+  } if (order.mobileNumber !== res.locals.mobileNumber) {
+    order.mobileNumber = res.locals.mobileNumber;
+  }  if (order.status !== res.locals.status) {
+    order.status = res.locals.status;
+  }  if (order.dishes !== res.locals.dishes) {
+    order.dishes = res.locals.dishes;
   }
   res.json({ data: order });
 };
